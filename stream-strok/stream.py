@@ -258,6 +258,9 @@ st.markdown('''
     text-shadow: 0 2px 8px #23244d44;
     margin: 0;
     word-break: break-word;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 .title-bar-meta {
     font-family: 'Roboto', 'Montserrat', Arial, sans-serif;
@@ -344,119 +347,39 @@ updateDateTime();
 # Current time for initial display
 current_time = datetime.now().strftime('%A, %d %B %Y, %H:%M:%S')
 
-st.markdown('''
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@700&family=Poppins:wght@700&display=swap');
-.title-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 1.2rem 2.5vw 1.2rem 2.5vw;
-    background: rgba(24,28,58,0.92);
-    border-radius: 0 0 18px 18px;
-    box-shadow: 0 2px 16px #2e319244;
-    margin-bottom: 2.2rem;
-    flex-wrap: wrap;
-}
-.title-bar-title {
-    font-family: 'Montserrat', 'Roboto', 'Poppins', 'Segoe UI', Arial, sans-serif;
-    font-size: 2.2rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, #6c63ff 0%, #38f9d7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: transparent;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 8px #23244d44;
-    margin: 0;
-    word-break: break-word;
-}
-.title-bar-meta {
-    font-family: 'Roboto', 'Montserrat', Arial, sans-serif;
-    font-size: 1.08rem;
-    color: #b3e0ff;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    margin-left: 2vw;
-    margin-top: 0;
-    white-space: nowrap;
-}
-@media (max-width: 700px) {
-    .title-bar { flex-direction: column; align-items: flex-start; padding: 1.2rem 1vw; }
-    .title-bar-meta { margin-left: 0; margin-top: 0.7rem; font-size: 0.98rem; }
-    .title-bar-title { font-size: 1.3rem; }
-}
-@media (max-width: 500px) {
-    .title-bar { padding: 0.7rem 0.5vw; }
-    .title-bar-title { font-size: 1.05rem; }
-    .title-bar-meta { font-size: 0.85rem; }
-}
-/* Responsive metrics and columns */
-.stMetric, .metric-card {
-    min-width: 120px;
-    font-size: 1rem;
-    margin-bottom: 0.7rem;
-}
-@media (max-width: 900px) {
-    .stColumns, .stColumn {
-        flex-direction: column !important;
-        width: 100% !important;
-        min-width: 0 !important;
-    }
-    .section-header {
-        font-size: 1.2rem;
-    }
-}
-@media (max-width: 600px) {
-    .stMetric, .metric-card {
-        font-size: 0.95rem;
-        min-width: 90px;
-        padding: 0.5rem 0.5rem;
-    }
-    .stButton>button, .stDownloadButton>button {
-        font-size: 0.95rem;
-        padding: 0.5rem 0.7rem;
-    }
-}
-</style>
-<div class="title-bar">
-  <div class="title-bar-title">Stroke Prediction ML Dashboard</div>
-  <div class="title-bar-meta" id="live-datetime">''' + current_time + '''</div>
-</div>
-''', unsafe_allow_html=True)
-
-# Add auto-refresh functionality for live updates
-# This will refresh the page every 60 seconds to update the datetime
-# You can adjust the interval as needed
+# Ensure session state for auto_refresh is initialized before any use
 if 'auto_refresh' not in st.session_state:
     st.session_state.auto_refresh = True
 
-# Add a toggle in sidebar for auto-refresh
+# --- Move UiTM Logo to Sidebar with fixed width and improved layout ---
 with st.sidebar:
-    st.markdown("---")
+    st.image("stroke/assets/UiTM-Logo.png", width=300)
+    st.markdown("<hr style='margin:0.7rem 0;'>", unsafe_allow_html=True)
+    
+    # Dashboard Controls (file upload)
+    st.markdown('<div style="font-size:1.2rem;font-weight:700;color:#6c63ff;">Dashboard Controls</div>', unsafe_allow_html=True)
+    uploaded_file = st.file_uploader(
+        "Upload CSV file", type=['csv'],
+        help="Upload your stroke dataset CSV file",
+        key="sidebar_file_uploader"
+    )
+    st.markdown("<hr style='margin:0.7rem 0;'>", unsafe_allow_html=True)
+    
+    # Live Updates
     st.subheader("⚙️ Live Updates")
     auto_refresh = st.checkbox("Enable Live DateTime Updates", value=st.session_state.auto_refresh)
-    
     if auto_refresh != st.session_state.auto_refresh:
         st.session_state.auto_refresh = auto_refresh
         st.rerun()
-    
     if auto_refresh:
         st.info("🔄 Page will refresh every 60 seconds for live updates")
-        # Use st_autorefresh for periodic updates
         st.markdown("""
         <script>
-        // Auto-refresh every 60 seconds
         setTimeout(function() {
             window.location.reload();
         }, 60000);
         </script>
         """, unsafe_allow_html=True)
-        
-        # Alternative: Use Streamlit's native auto-refresh
-        # This is more reliable than JavaScript
         try:
             from streamlit_autorefresh import st_autorefresh
             st_autorefresh(interval=60000, limit=None, key="datetime_refresh")
@@ -464,9 +387,60 @@ with st.sidebar:
             st.warning("Install streamlit-autorefresh: `pip install streamlit-autorefresh` for better live updates")
     else:
         st.info("⏸️ Live updates disabled")
+    st.markdown("<hr style='margin:0.7rem 0;'>", unsafe_allow_html=True)
+    
+    # About
+    st.subheader("ℹ️ About")
+    st.info("""
+    This dashboard provides an interactive interface for stroke prediction analysis using multiple machine learning algorithms.
+    
+    **Features:**
+    - Data exploration and visualization
+    - Advanced feature engineering
+    - Multiple ML model comparison
+    - Comprehensive performance analysis
+    - Downloadable results
+    
+    **Developed by:**
+    Suhaimi, Anis, Syafiqah, Nizam
+    """)
+    st.markdown("<hr style='margin:0.7rem 0;'>", unsafe_allow_html=True)
+    
+    # Technical Details
+    st.subheader("🛠️ Technical Details")
+    st.info("""
+    **Preprocessing:**
+    - Missing value imputation
+    - Log transformations
+    - One-hot encoding
+    - Feature scaling
+    
+    **Class Imbalance:**
+    - SMOTE oversampling
+    - Stratified sampling
+    
+    **Validation:**
+    - Train/test split
+    - Cross-validation
+    - Multiple metrics evaluation
+    """)
 
-# Sidebar header with image
-st.sidebar.markdown('<div style="display:flex;align-items:center;gap:0.5rem;"><img src="https://cdn.openart.ai/uploads/image_1687288576822_1024.jpg" width="28" style="border-radius:8px;"> <span style="font-size:1.2rem;font-weight:700;color:#6c63ff;">Dashboard Controls</span></div>', unsafe_allow_html=True)
+# --- Title Bar (no logo) ---
+col_title, = st.columns([1])
+with col_title:
+    st.markdown(f'''
+        <div class="title-bar-title">
+            🧠 Stroke Risk Predictor
+            <span style="font-size:1.1rem;font-weight:600;color:#38f9d7;margin-left:1.2rem;">CSC738</span>
+        </div>
+        <div class="title-bar-meta" id="live-datetime">{current_time}</div>
+    ''', unsafe_allow_html=True)
+
+# Add auto-refresh functionality for live updates
+# This will refresh the page every 60 seconds to update the datetime
+# You can adjust the interval as needed
+if 'auto_refresh' not in st.session_state:
+    st.session_state.auto_refresh = True
 
 # =============================
 # 📊 Data Processing Functions
@@ -870,10 +844,6 @@ def create_confusion_matrices(results, y_test):
 def main():
     """Main dashboard function"""
     # Load data FIRST
-    uploaded_file = st.sidebar.file_uploader(
-        "Upload CSV file", type=['csv'],
-        help="Upload your stroke dataset CSV file"
-    )
     df_raw, df_processed = load_and_preprocess_data(uploaded_file)
     if df_raw is None:
         st.error("Please upload a valid CSV file or ensure 'healthcare-dataset-stroke-data.csv' exists")
@@ -1419,14 +1389,8 @@ def main():
     - Comprehensive performance analysis
     - Downloadable results
     
-    **Models Supported:**
-    - K-Nearest Neighbors (KNN)
-    - Logistic Regression
-    - Support Vector Machine (SVM)
-    - Naive Bayes
-    - Decision Tree
-    - Random Forest
-    - Gradient Boosting
+    **Developed by:**
+    Suhaimi, Anis, Syafiqah, Nizam
     """)
     
     st.sidebar.markdown("---")
@@ -1447,13 +1411,6 @@ def main():
     - Cross-validation
     - Multiple metrics evaluation
     """)
-    
-    # Add footer with developer credits
-    st.markdown("""
-    <div style='text-align: center; color: #aaa; margin-top: 2rem; font-size: 1.1rem;'>
-        Developed by <b>Suhaimi, Anis, Syafiqah, Nizam</b>
-    </div>
-    """, unsafe_allow_html=True)
 
 # =============================
 # 🚀 Application Entry Point
