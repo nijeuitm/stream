@@ -229,8 +229,120 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Remove the old banner and replace with a new, professional, readable title bar
-current_time = datetime.now().strftime('%A, %d %B %Y, %H:%M')
+# Update the title bar and main dashboard CSS for better mobile support
+st.markdown('''
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@700&family=Poppins:wght@700&display=swap');
+.title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1.2rem 2.5vw 1.2rem 2.5vw;
+    background: rgba(24,28,58,0.92);
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 2px 16px #2e319244;
+    margin-bottom: 2.2rem;
+    flex-wrap: wrap;
+}
+.title-bar-title {
+    font-family: 'Montserrat', 'Roboto', 'Poppins', 'Segoe UI', Arial, sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #6c63ff 0%, #38f9d7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px #23244d44;
+    margin: 0;
+    word-break: break-word;
+}
+.title-bar-meta {
+    font-family: 'Roboto', 'Montserrat', Arial, sans-serif;
+    font-size: 1.08rem;
+    color: #b3e0ff;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-left: 2vw;
+    margin-top: 0;
+    white-space: nowrap;
+}
+@media (max-width: 700px) {
+    .title-bar { flex-direction: column; align-items: flex-start; padding: 1.2rem 1vw; }
+    .title-bar-meta { margin-left: 0; margin-top: 0.7rem; font-size: 0.98rem; }
+    .title-bar-title { font-size: 1.3rem; }
+}
+@media (max-width: 500px) {
+    .title-bar { padding: 0.7rem 0.5vw; }
+    .title-bar-title { font-size: 1.05rem; }
+    .title-bar-meta { font-size: 0.85rem; }
+}
+/* Responsive metrics and columns */
+.stMetric, .metric-card {
+    min-width: 120px;
+    font-size: 1rem;
+    margin-bottom: 0.7rem;
+}
+@media (max-width: 900px) {
+    .stColumns, .stColumn {
+        flex-direction: column !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    .section-header {
+        font-size: 1.2rem;
+    }
+}
+@media (max-width: 600px) {
+    .stMetric, .metric-card {
+        font-size: 0.95rem;
+        min-width: 90px;
+        padding: 0.5rem 0.5rem;
+    }
+    .stButton>button, .stDownloadButton>button {
+        font-size: 0.95rem;
+        padding: 0.5rem 0.7rem;
+    }
+}
+</style>
+''', unsafe_allow_html=True)
+
+# Add live datetime functionality
+import time
+from datetime import datetime
+
+# Add JavaScript for live datetime updates
+st.markdown('''
+<script>
+function updateDateTime() {
+    const now = new Date();
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+    const formattedDate = now.toLocaleDateString('en-US', options);
+    const timeElement = document.getElementById('live-datetime');
+    if (timeElement) {
+        timeElement.textContent = formattedDate;
+    }
+}
+
+// Update every second
+setInterval(updateDateTime, 1000);
+// Initial update
+updateDateTime();
+</script>
+''', unsafe_allow_html=True)
+
+# Current time for initial display
+current_time = datetime.now().strftime('%A, %d %B %Y, %H:%M:%S')
 
 st.markdown('''
 <style>
@@ -245,6 +357,7 @@ st.markdown('''
     border-radius: 0 0 18px 18px;
     box-shadow: 0 2px 16px #2e319244;
     margin-bottom: 2.2rem;
+    flex-wrap: wrap;
 }
 .title-bar-title {
     font-family: 'Montserrat', 'Roboto', 'Poppins', 'Segoe UI', Arial, sans-serif;
@@ -258,6 +371,7 @@ st.markdown('''
     letter-spacing: 1px;
     text-shadow: 0 2px 8px #23244d44;
     margin: 0;
+    word-break: break-word;
 }
 .title-bar-meta {
     font-family: 'Roboto', 'Montserrat', Arial, sans-serif;
@@ -266,18 +380,90 @@ st.markdown('''
     font-weight: 500;
     letter-spacing: 0.5px;
     margin-left: 2vw;
+    margin-top: 0;
+    white-space: nowrap;
 }
 @media (max-width: 700px) {
     .title-bar { flex-direction: column; align-items: flex-start; padding: 1.2rem 1vw; }
-    .title-bar-meta { margin-left: 0; margin-top: 0.7rem; }
+    .title-bar-meta { margin-left: 0; margin-top: 0.7rem; font-size: 0.98rem; }
     .title-bar-title { font-size: 1.3rem; }
+}
+@media (max-width: 500px) {
+    .title-bar { padding: 0.7rem 0.5vw; }
+    .title-bar-title { font-size: 1.05rem; }
+    .title-bar-meta { font-size: 0.85rem; }
+}
+/* Responsive metrics and columns */
+.stMetric, .metric-card {
+    min-width: 120px;
+    font-size: 1rem;
+    margin-bottom: 0.7rem;
+}
+@media (max-width: 900px) {
+    .stColumns, .stColumn {
+        flex-direction: column !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    .section-header {
+        font-size: 1.2rem;
+    }
+}
+@media (max-width: 600px) {
+    .stMetric, .metric-card {
+        font-size: 0.95rem;
+        min-width: 90px;
+        padding: 0.5rem 0.5rem;
+    }
+    .stButton>button, .stDownloadButton>button {
+        font-size: 0.95rem;
+        padding: 0.5rem 0.7rem;
+    }
 }
 </style>
 <div class="title-bar">
   <div class="title-bar-title">Stroke Prediction ML Dashboard</div>
-  <div class="title-bar-meta">''' + current_time + '''</div>
+  <div class="title-bar-meta" id="live-datetime">''' + current_time + '''</div>
 </div>
 ''', unsafe_allow_html=True)
+
+# Add auto-refresh functionality for live updates
+# This will refresh the page every 60 seconds to update the datetime
+# You can adjust the interval as needed
+if 'auto_refresh' not in st.session_state:
+    st.session_state.auto_refresh = True
+
+# Add a toggle in sidebar for auto-refresh
+with st.sidebar:
+    st.markdown("---")
+    st.subheader("⚙️ Live Updates")
+    auto_refresh = st.checkbox("Enable Live DateTime Updates", value=st.session_state.auto_refresh)
+    
+    if auto_refresh != st.session_state.auto_refresh:
+        st.session_state.auto_refresh = auto_refresh
+        st.rerun()
+    
+    if auto_refresh:
+        st.info("🔄 Page will refresh every 60 seconds for live updates")
+        # Use st_autorefresh for periodic updates
+        st.markdown("""
+        <script>
+        // Auto-refresh every 60 seconds
+        setTimeout(function() {
+            window.location.reload();
+        }, 60000);
+        </script>
+        """, unsafe_allow_html=True)
+        
+        # Alternative: Use Streamlit's native auto-refresh
+        # This is more reliable than JavaScript
+        try:
+            from streamlit_autorefresh import st_autorefresh
+            st_autorefresh(interval=60000, limit=None, key="datetime_refresh")
+        except ImportError:
+            st.warning("Install streamlit-autorefresh: `pip install streamlit-autorefresh` for better live updates")
+    else:
+        st.info("⏸️ Live updates disabled")
 
 # Sidebar header with image
 st.sidebar.markdown('<div style="display:flex;align-items:center;gap:0.5rem;"><img src="https://cdn.openart.ai/uploads/image_1687288576822_1024.jpg" width="28" style="border-radius:8px;"> <span style="font-size:1.2rem;font-weight:700;color:#6c63ff;">Dashboard Controls</span></div>', unsafe_allow_html=True)
