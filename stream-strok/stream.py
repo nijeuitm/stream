@@ -153,10 +153,25 @@ st.markdown("""
         color: #fff !important;
     }
     .stDataFrame, .stTable {
-        background: #23244d !important;
+        background: rgba(24,28,58,0.7) !important;
         color: #f4f6fa !important;
-        border-radius: 12px;
-        box-shadow: 0 2px 16px #2e319288;
+        border-radius: 18px;
+        border: 1.5px solid rgba(108,99,255,0.22);
+        box-shadow: 0 8px 32px #2e3192aa, 0 2px 0 #6c63ff33;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(8px);
+        font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+        font-size: 1.08rem;
+    }
+    /* Accent header row for tables */
+    .stDataFrame thead tr, .stTable thead tr {
+        background: linear-gradient(90deg, #6c63ff 0%, #38f9d7 100%) !important;
+        color: #181c3a !important;
+        font-weight: 700;
+    }
+    /* Row hover effect */
+    .stDataFrame tbody tr:hover, .stTable tbody tr:hover {
+        background: rgba(108,99,255,0.12) !important;
     }
     .stMetric {
         background: #23244d;
@@ -182,11 +197,87 @@ st.markdown("""
             font-size: 1.2rem;
         }
     }
+    .stApp {
+        background: linear-gradient(-45deg, rgba(24,28,58,0.9), rgba(35,36,77,0.9), rgba(108,99,255,0.9), rgba(56,249,215,0.9), rgba(24,28,58,0.9));
+        background-size: 400% 400%;
+        animation: gradientBG 18s ease infinite;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+    @keyframes gradientBG {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+    .stApp:before {
+        content: "";
+        position: absolute;
+        top: -10%;
+        left: -10%;
+        width: 120vw;
+        height: 120vh;
+        background: radial-gradient(circle at 60% 40%, rgba(108,99,255,0.13) 0%, rgba(56,249,215,0.09) 40%, transparent 80%);
+        z-index: 0;
+        pointer-events: none;
+        animation: auraMove 12s linear infinite alternate;
+    }
+    @keyframes auraMove {
+        0% {transform: scale(1) translate(0,0);}
+        100% {transform: scale(1.1) translate(20px, 30px);}
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Add a geometric/tech/AI-style header image
-st.markdown('<h1 class="main-header"><img src="https://cdn.openart.ai/uploads/image_1687288576822_1024.jpg" width="60" style="vertical-align:middle; margin-bottom:10px;"> Enhanced Stroke Prediction ML Dashboard</h1>', unsafe_allow_html=True)
+# Remove the old banner and replace with a new, professional, readable title bar
+current_time = datetime.now().strftime('%A, %d %B %Y, %H:%M')
+
+st.markdown('''
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@700&family=Poppins:wght@700&display=swap');
+.title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1.2rem 2.5vw 1.2rem 2.5vw;
+    background: rgba(24,28,58,0.92);
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 2px 16px #2e319244;
+    margin-bottom: 2.2rem;
+}
+.title-bar-title {
+    font-family: 'Montserrat', 'Roboto', 'Poppins', 'Segoe UI', Arial, sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #6c63ff 0%, #38f9d7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px #23244d44;
+    margin: 0;
+}
+.title-bar-meta {
+    font-family: 'Roboto', 'Montserrat', Arial, sans-serif;
+    font-size: 1.08rem;
+    color: #b3e0ff;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-left: 2vw;
+}
+@media (max-width: 700px) {
+    .title-bar { flex-direction: column; align-items: flex-start; padding: 1.2rem 1vw; }
+    .title-bar-meta { margin-left: 0; margin-top: 0.7rem; }
+    .title-bar-title { font-size: 1.3rem; }
+}
+</style>
+<div class="title-bar">
+  <div class="title-bar-title">Stroke Prediction ML Dashboard</div>
+  <div class="title-bar-meta">''' + current_time + '''</div>
+</div>
+''', unsafe_allow_html=True)
 
 # Sidebar header with image
 st.sidebar.markdown('<div style="display:flex;align-items:center;gap:0.5rem;"><img src="https://cdn.openart.ai/uploads/image_1687288576822_1024.jpg" width="28" style="border-radius:8px;"> <span style="font-size:1.2rem;font-weight:700;color:#6c63ff;">Dashboard Controls</span></div>', unsafe_allow_html=True)
@@ -412,22 +503,63 @@ def create_data_overview_plots(df):
     
     with col1:
         if 'stroke' in df.columns:
-            fig = px.pie(df, names='stroke', title='Stroke Distribution',
-                        labels={'stroke': 'Stroke', 0: 'No Stroke', 1: 'Stroke'})
+            fig = px.pie(
+                df, 
+                names='stroke', 
+                title='Stroke Distribution', 
+                hole=0.5, 
+                color_discrete_sequence=px.colors.qualitative.Set2
+            )
+            fig.update_traces(textinfo='percent+label', pull=[0.05, 0])
+            fig.update_layout(
+                template='plotly_dark',
+                font=dict(size=18),
+                legend_title_text='Stroke',
+                plot_bgcolor='rgba(24,28,58,0.9)',
+                paper_bgcolor='rgba(24,28,58,0.9)'
+            )
             st.plotly_chart(fig, use_container_width=True)
     
     with col2:
         if 'age' in df.columns:
-            fig = px.histogram(df, x='age', color='stroke' if 'stroke' in df.columns else None,
-                             title='Age Distribution', nbins=30)
+            fig = px.histogram(
+                df, 
+                x='age', 
+                color='stroke' if 'stroke' in df.columns else None, 
+                nbins=30, 
+                barmode='overlay',
+                color_discrete_sequence=px.colors.sequential.Plasma
+            )
+            fig.update_layout(
+                template='plotly_dark',
+                font=dict(size=18),
+                legend_title_text='Stroke',
+                plot_bgcolor='rgba(24,28,58,0.9)',
+                paper_bgcolor='rgba(24,28,58,0.9)'
+            )
             st.plotly_chart(fig, use_container_width=True)
     
     # Correlation heatmap
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     if len(numeric_cols) > 1:
-        fig = px.imshow(df[numeric_cols].corr(), 
-                       title='Feature Correlation Heatmap',
-                       color_continuous_scale='RdBu')
+        import plotly.figure_factory as ff
+        corr = df[numeric_cols].corr()
+        fig = ff.create_annotated_heatmap(
+            z=corr.values,
+            x=list(corr.columns),
+            y=list(corr.index),
+            colorscale='Viridis',
+            showscale=True,
+            annotation_text=[[f'{val:.2f}' for val in row] for row in corr.values]
+        )
+        fig.update_layout(
+            template='plotly_dark',
+            font=dict(size=16),
+            title='Feature Correlation Heatmap',
+            autosize=True,
+            plot_bgcolor='rgba(24,28,58,0.9)',
+            paper_bgcolor='rgba(24,28,58,0.9)'
+        )
         st.plotly_chart(fig, use_container_width=True)
 
 def create_model_comparison_plots(results):
@@ -445,6 +577,10 @@ def create_model_comparison_plots(results):
                     title='F1-Score Comparison',
                     color='F1-Score', color_continuous_scale='viridis')
         fig.update_xaxes(tickangle=45)
+        fig.update_layout(
+            plot_bgcolor='rgba(24,28,58,0.9)',
+            paper_bgcolor='rgba(24,28,58,0.9)'
+        )
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
@@ -452,6 +588,10 @@ def create_model_comparison_plots(results):
                     title='AUC Score Comparison',
                     color='AUC', color_continuous_scale='plasma')
         fig.update_xaxes(tickangle=45)
+        fig.update_layout(
+            plot_bgcolor='rgba(24,28,58,0.9)',
+            paper_bgcolor='rgba(24,28,58,0.9)'
+        )
         st.plotly_chart(fig, use_container_width=True)
     
     # Precision vs Recall scatter
@@ -465,6 +605,10 @@ def create_model_comparison_plots(results):
         fig.add_annotation(x=row['Recall'], y=row['Precision'],
                           text=row['Model'], showarrow=True)
     
+    fig.update_layout(
+        plot_bgcolor='rgba(24,28,58,0.9)',
+        paper_bgcolor='rgba(24,28,58,0.9)'
+    )
     st.plotly_chart(fig, use_container_width=True)
     
     # Training time comparison
@@ -472,6 +616,10 @@ def create_model_comparison_plots(results):
                 title='Training Time Comparison (seconds)',
                 color='Training_Time', color_continuous_scale='oranges')
     fig.update_xaxes(tickangle=45)
+    fig.update_layout(
+        plot_bgcolor='rgba(24,28,58,0.9)',
+        paper_bgcolor='rgba(24,28,58,0.9)'
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 def create_roc_curves(results, y_test):
@@ -502,7 +650,9 @@ def create_roc_curves(results, y_test):
         title='ROC Curves Comparison',
         xaxis_title='False Positive Rate',
         yaxis_title='True Positive Rate',
-        width=800, height=600
+        width=800, height=600,
+        plot_bgcolor='rgba(24,28,58,0.9)',
+        paper_bgcolor='rgba(24,28,58,0.9)'
     )
     
     st.plotly_chart(fig, use_container_width=True)
@@ -612,20 +762,61 @@ def main():
         viz_cols = st.columns(2)
         with viz_cols[0]:
             if 'stroke' in df_raw.columns:
-                fig = px.pie(df_raw, names='stroke', title='Stroke Distribution',
-                            labels={'stroke': 'Stroke', 0: 'No Stroke', 1: 'Stroke'})
+                fig = px.pie(
+                    df_raw,
+                    names='stroke',
+                    title='Stroke Distribution',
+                    hole=0.5,
+                    color_discrete_sequence=px.colors.qualitative.Set2
+                )
+                fig.update_traces(textinfo='percent+label', pull=[0.05, 0])
+                fig.update_layout(
+                    template='plotly_dark',
+                    font=dict(size=18),
+                    legend_title_text='Stroke',
+                    plot_bgcolor='rgba(24,28,58,0.9)',
+                    paper_bgcolor='rgba(24,28,58,0.9)'
+                )
                 st.plotly_chart(fig, use_container_width=True)
         with viz_cols[1]:
             if 'age' in df_raw.columns:
-                fig = px.histogram(df_raw, x='age', color='stroke' if 'stroke' in df_raw.columns else None,
-                                 title='Age Distribution', nbins=30)
+                fig = px.histogram(
+                    df_raw,
+                    x='age',
+                    color='stroke' if 'stroke' in df_raw.columns else None,
+                    nbins=30,
+                    barmode='overlay',
+                    color_discrete_sequence=px.colors.sequential.Plasma
+                )
+                fig.update_layout(
+                    template='plotly_dark',
+                    font=dict(size=18),
+                    legend_title_text='Stroke',
+                    plot_bgcolor='rgba(24,28,58,0.9)',
+                    paper_bgcolor='rgba(24,28,58,0.9)'
+                )
                 st.plotly_chart(fig, use_container_width=True)
         # Correlation heatmap (full width)
         numeric_cols = df_raw.select_dtypes(include=[np.number]).columns
         if len(numeric_cols) > 1:
-            fig = px.imshow(df_raw[numeric_cols].corr(), 
-                           title='Feature Correlation Heatmap',
-                           color_continuous_scale='RdBu')
+            import plotly.figure_factory as ff
+            corr = df_raw[numeric_cols].corr()
+            fig = ff.create_annotated_heatmap(
+                z=corr.values,
+                x=list(corr.columns),
+                y=list(corr.index),
+                colorscale='Viridis',
+                showscale=True,
+                annotation_text=[[f'{val:.2f}' for val in row] for row in corr.values]
+            )
+            fig.update_layout(
+                template='plotly_dark',
+                font=dict(size=16),
+                title='Feature Correlation Heatmap',
+                autosize=True,
+                plot_bgcolor='rgba(24,28,58,0.9)',
+                paper_bgcolor='rgba(24,28,58,0.9)'
+            )
             st.plotly_chart(fig, use_container_width=True)
     
     # =============================
@@ -660,6 +851,13 @@ def main():
                 fig = px.histogram(df_enhanced, x=feature_to_plot, 
                                  color='stroke' if 'stroke' in df_enhanced.columns else None,
                                  title=f'Distribution of {feature_to_plot}')
+                fig.update_layout(
+                    template='plotly_dark',
+                    font=dict(size=18),
+                    legend_title_text='Stroke',
+                    plot_bgcolor='rgba(24,28,58,0.9)',
+                    paper_bgcolor='rgba(24,28,58,0.9)'
+                )
                 st.plotly_chart(fig, use_container_width=True)
         else:
             df_enhanced = df_raw
@@ -794,6 +992,61 @@ def main():
             # Confusion Matrices
             st.subheader("🎯 Confusion Matrices")
             create_confusion_matrices(results, y_test)
+            
+            if 'training_results' in st.session_state:
+                results = st.session_state['training_results']
+                # Prepare results for download
+                results_for_download = []
+                for r in results:
+                    results_for_download.append({
+                        'Model': r['Model'],
+                        'Accuracy': r['Accuracy'],
+                        'Precision': r['Precision'],
+                        'Recall': r['Recall'],
+                        'F1-Score': r['F1-Score'],
+                        'AUC': r['AUC'],
+                        'CV_F1_Mean': r['CV_F1_Mean'],
+                        'CV_F1_Std': r['CV_F1_Std'],
+                        'Training_Time': r['Training_Time']
+                    })
+                download_df = pd.DataFrame(results_for_download)
+                csv = download_df.to_csv(index=False)
+                # --- Download Results Card ---
+                st.markdown('''
+                <div style="background: rgba(24,28,58,0.7); border-radius: 16px; box-shadow: 0 4px 24px #2e3192aa; padding: 1.5rem 1.5rem 1.2rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1.2rem;">
+                    <span style="font-size:2.2rem;">📥</span>
+                    <div>
+                        <div style="font-size:1.3rem;font-weight:700;letter-spacing:0.5px;">Download Results</div>
+                        <div style="margin-top:0.5rem;">
+                ''', unsafe_allow_html=True)
+                st.download_button(
+                    label="Download Results as CSV",
+                    data=csv,
+                    file_name=f"stroke_prediction_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                    mime="text/csv"
+                )
+                st.markdown('</div></div></div>', unsafe_allow_html=True)
+                # --- Recommendations as Cards ---
+                st.markdown('<div style="font-size:1.3rem;font-weight:700;margin-bottom:0.7rem;display:flex;align-items:center;gap:0.7rem;"><span style="font-size:2rem;">💡</span>Recommendations</div>', unsafe_allow_html=True)
+                rec_cards = [
+                    ("✔️ Logistic Regression offers excellent interpretability", "#43e97b"),
+                    ("✔️ Fast training and prediction times", "#43e97b"),
+                    ("✔️ Good baseline model for medical predictions", "#43e97b"),
+                    ("⚠️ May struggle with complex non-linear relationships", "#f9d423"),
+                ]
+                for text, color in rec_cards:
+                    st.markdown(f'<div style="background:rgba(67,233,123,0.10) if color==\"#43e97b\" else \"rgba(249,212,35,0.10)\";border-left:5px solid {color};border-radius:10px;padding:0.7rem 1rem;margin-bottom:0.5rem;font-size:1.08rem;box-shadow:0 2px 8px #2e319244;">{text}</div>', unsafe_allow_html=True)
+                # --- General Guidelines in Expander ---
+                with st.expander("General Guidelines", expanded=False):
+                    st.markdown('''
+    - 🔄 Implement proper cross-validation in production
+    - 📊 Monitor model performance over time
+    - 🏥 Consider clinical validation before deployment
+    - ⚖️ Ensure compliance with healthcare regulations
+    - 🔒 Implement proper data privacy measures
+    ''')
+            else:
+                st.info("Please train models first to see recommendations and download results.")
     
     # =============================
     # Tab 5: Model Comparison
@@ -852,6 +1105,10 @@ def main():
                            orientation='h',
                            title=f'Top 15 Feature Importances - {selected_model}')
                 fig.update_layout(yaxis={'categoryorder':'total ascending'})
+                fig.update_layout(
+                    plot_bgcolor='rgba(24,28,58,0.9)',
+                    paper_bgcolor='rgba(24,28,58,0.9)'
+                )
                 st.plotly_chart(fig, use_container_width=True)
             
             # Model coefficients (for Logistic Regression)
@@ -874,6 +1131,10 @@ def main():
                            color='Coefficient',
                            color_continuous_scale='RdBu')
                 fig.update_layout(yaxis={'categoryorder':'total ascending'})
+                fig.update_layout(
+                    plot_bgcolor='rgba(24,28,58,0.9)',
+                    paper_bgcolor='rgba(24,28,58,0.9)'
+                )
                 st.plotly_chart(fig, use_container_width=True)
             
             # Download results
@@ -907,7 +1168,7 @@ def main():
             )
             
             # Model recommendations
-            st.subheader("💡 Recommendations")
+            st.subheader("🔄 Recommendations")
             
             best_model = max(results, key=lambda x: x['F1-Score'])
             
