@@ -19,6 +19,7 @@ import warnings
 from datetime import datetime
 import io
 import base64
+import pytz  # Add this import for timezone support
 
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.preprocessing import StandardScaler
@@ -345,7 +346,10 @@ updateDateTime();
 ''', unsafe_allow_html=True)
 
 # Current time for initial display
-current_time = datetime.now().strftime('%A, %d %B %Y, %H:%M:%S')
+# Replace the old current_time assignment with timezone-aware version
+# current_time = datetime.now().strftime('%A, %d %B %Y, %H:%M:%S')
+tz = pytz.timezone('Asia/Kuala_Lumpur')  # GMT+8
+current_time = datetime.now(tz).strftime('%A, %d %B %Y, %H:%M:%S')
 
 # Ensure session state for auto_refresh is initialized before any use
 if 'auto_refresh' not in st.session_state:
@@ -353,7 +357,7 @@ if 'auto_refresh' not in st.session_state:
 
 # --- Move UiTM Logo to Sidebar with fixed width and improved layout ---
 with st.sidebar:
-    st.image("assets/UiTM-Logo.png", width=300)
+    st.image("stroke/assets/UiTM-Logo.png", width=300)
     st.markdown("<hr style='margin:0.7rem 0;'>", unsafe_allow_html=True)
     
     # Dashboard Controls (file upload)
