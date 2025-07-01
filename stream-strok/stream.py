@@ -353,7 +353,7 @@ if 'auto_refresh' not in st.session_state:
 
 # --- Move UiTM Logo to Sidebar with fixed width and improved layout ---
 with st.sidebar:
-    st.image("stroke/assets/UiTM-Logo.png", width=300)
+    st.image("assets/UiTM-Logo.png", width=300)
     st.markdown("<hr style='margin:0.7rem 0;'>", unsafe_allow_html=True)
     
     # Dashboard Controls (file upload)
